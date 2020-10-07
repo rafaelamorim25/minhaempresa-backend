@@ -1,0 +1,16 @@
+package br.com.minhaempresa.resources;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping(value="/minhaempresa")
+public class ManterEmpresaResource {
+	
+	@RequestMapping(method=RequestMethod.GET)
+	public String teste() {
+		return "O REST está funcionando";
+	}
+
+}
