@@ -7,11 +7,12 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.br.CNPJ;
 
 public class EmpresaDTO implements Serializable{
 	private static final long serialVersionUID = 1L;
 
-	@Pattern(regexp = "[0-9]{2}\\.?[0-9]{3}\\.?[0-9]{3}\\/?[0-9]{4}\\-?[0-9]{2}", message = "Preenchimento do cnpj é obrigatório, máscara: dd.ddd.ddd/dddd-dd")
+	@CNPJ
 	private String cnpj;
 
 	@Length(min = 3, max = 255, message = "Preenchimento do nome fantasia é obrigatório e deve ter entre 3 e 255 caracteres")
