@@ -1,9 +1,15 @@
 package br.com.minhaempresa.domain;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,8 +43,13 @@ public class Empresa implements Serializable {
 	@JsonIgnore
 	@Column(name = "empresa_senha")
 	private String senha;
+	
+	@ElementCollection(fetch=FetchType.EAGER)
+	@CollectionTable(name="Perfis")
+	private Set<Integer> perfis = new HashSet<>();
 
 	public Empresa() {
+		addPerfil(Perfil.EMPRESA);
 	}
 
 	public Empresa(Integer id, String cnpj, String nomeFantasia, String nomeProprietario, String telefone,
@@ -51,6 +62,7 @@ public class Empresa implements Serializable {
 		this.telefone = telefone;
 		this.email = email;
 		this.senha = senha;
+		addPerfil(Perfil.EMPRESA);
 	}
 	
 	public Empresa(String cnpj, String nomeFantasia, String nomeProprietario, String telefone,
@@ -62,6 +74,7 @@ public class Empresa implements Serializable {
 		this.telefone = telefone;
 		this.email = email;
 		this.senha = senha;
+		addPerfil(Perfil.EMPRESA);
 	}
 
 	public Integer getId() {
@@ -122,6 +135,14 @@ public class Empresa implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public Set<Perfil> getPerfis() {
+		return perfis.stream().map(x -> Perfil.toEnum(x)).collect(Collectors.toSet());
+	}
+	
+	public void addPerfil(Perfil perfil) {
+		perfis.add(perfil.getCod());
 	}
 
 	@Override

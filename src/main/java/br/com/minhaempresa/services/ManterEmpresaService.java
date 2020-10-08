@@ -2,6 +2,7 @@ package br.com.minhaempresa.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.minhaempresa.domain.Empresa;
@@ -12,6 +13,9 @@ import br.com.minhaempresa.repositories.EmpresaRepository;
 
 @Service
 public class ManterEmpresaService {
+	
+	@Autowired
+	BCryptPasswordEncoder passwordEncoder;
 
 	@Autowired
 	EmpresaRepository empresaRepository;
@@ -63,6 +67,6 @@ public class ManterEmpresaService {
 
 	public Empresa fromDTO(EmpresaDTO empresaDTO) {
 		return new Empresa(empresaDTO.getCnpj(), empresaDTO.getNomeFantasia(), empresaDTO.getNomeProprietario(),
-				empresaDTO.getTelefone(), empresaDTO.getEmail(), empresaDTO.getSenha());
+				empresaDTO.getTelefone(), empresaDTO.getEmail(), passwordEncoder.encode(empresaDTO.getSenha()));
 	}
 }
