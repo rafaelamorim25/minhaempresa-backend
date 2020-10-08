@@ -52,6 +52,17 @@ public class Empresa implements Serializable {
 		this.email = email;
 		this.senha = senha;
 	}
+	
+	public Empresa(String cnpj, String nomeFantasia, String nomeProprietario, String telefone,
+			String email, String senha) {
+		super();
+		this.cnpj = cnpj;
+		this.nomeFantasia = nomeFantasia;
+		this.nomeProprietario = nomeProprietario;
+		this.telefone = telefone;
+		this.email = email;
+		this.senha = senha;
+	}
 
 	public Integer getId() {
 		return id;

@@ -2,6 +2,8 @@ package br.com.minhaempresa.resources;
 
 import java.net.URI;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import br.com.minhaempresa.domain.Empresa;
+import br.com.minhaempresa.dto.EmpresaDTO;
 import br.com.minhaempresa.services.ManterEmpresaService;
 
 @RestController
@@ -30,7 +33,9 @@ public class ManterEmpresaResource {
 	}
 	
 	@RequestMapping(value = "/faça-parte", method = RequestMethod.POST)
-	public ResponseEntity<Void> cadastrar(@RequestBody Empresa empresa){
+	public ResponseEntity<Void> cadastrar(@Valid @RequestBody EmpresaDTO empresaDTO){
+		
+		Empresa empresa = manterEmpresaService.fromDTO(empresaDTO);
 		
 		empresa = manterEmpresaService.cadastrar(empresa);
 		
