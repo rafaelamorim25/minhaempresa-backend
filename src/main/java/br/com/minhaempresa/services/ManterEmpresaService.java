@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 
 import br.com.minhaempresa.domain.Empresa;
 import br.com.minhaempresa.dto.EmpresaDTO;
+import br.com.minhaempresa.exceptions.AuthorizationException;
 import br.com.minhaempresa.exceptions.DataIntegrityException;
 import br.com.minhaempresa.exceptions.ObjectNotFoundException;
+import br.com.minhaempresa.login.User;
 import br.com.minhaempresa.repositories.EmpresaRepository;
 
 @Service
@@ -19,18 +21,8 @@ public class ManterEmpresaService {
 
 	@Autowired
 	EmpresaRepository empresaRepository;
-
-	public Empresa buscar(Integer id) {
-
-		// Apenas a empresa pode visualizar suas informações
-
-		return empresaRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(
-				"Empresa não encontrada, id " + id + ", Tipo: " + Empresa.class.getName()));
-	}
-
+	
 	public Empresa cadastrar(Empresa empresa) {
-
-		// Qualquer pessoa pode se registrar na plataforma
 
 		empresa.setId(null); // Serve para garantir que é uma nova empresa, pois o metodo save serve para
 								// inserir e atualizar
@@ -41,6 +33,18 @@ public class ManterEmpresaService {
 			throw new DataIntegrityException(
 					"Não é possível cadastrar a empresa, já existe uma conta com esse email ou cnpj", e.getCause());
 		}
+	}
+
+	public Empresa buscar(Integer id) {
+
+		User user = UserService.uthenticated();
+		
+		if(user == null || !id.equals(user.getId())) { //Garanta que apenas o usuário pode buscar seus dados
+			throw new AuthorizationException("Acesso negado");
+		}
+
+		return empresaRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(
+				"Empresa não encontrada, id " + id + ", Tipo: " + Empresa.class.getName()));
 	}
 
 	public Empresa atualizar(Empresa empresa) {

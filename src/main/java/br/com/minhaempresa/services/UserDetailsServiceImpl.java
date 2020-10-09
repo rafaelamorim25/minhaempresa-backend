@@ -11,7 +11,7 @@ import br.com.minhaempresa.login.User;
 import br.com.minhaempresa.repositories.EmpresaRepository;
 
 @Service
-public class UserDeatailsServiceImpl implements UserDetailsService{
+public class UserDetailsServiceImpl implements UserDetailsService{
 	
 	@Autowired
 	private EmpresaRepository empresaRepository;
