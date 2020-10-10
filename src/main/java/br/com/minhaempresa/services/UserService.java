@@ -6,7 +6,7 @@ import br.com.minhaempresa.login.User;
 
 public class UserService {
 	
-	public static User uthenticated() {
+	public static User authenticated() {
 		try {
 			return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		}
