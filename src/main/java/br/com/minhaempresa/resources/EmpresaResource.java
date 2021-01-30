@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,16 +19,17 @@ import br.com.minhaempresa.dto.ConfirmacaoSenhaDTO;
 import br.com.minhaempresa.dto.EmailDTO;
 import br.com.minhaempresa.dto.EmpresaDTO;
 import br.com.minhaempresa.dto.SenhaDTO;
-import br.com.minhaempresa.services.ManterEmpresaService;
+import br.com.minhaempresa.services.EmpresaService;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(value="/minhaempresa")
-public class ManterEmpresaResource {
+public class EmpresaResource {
 	
 	@Autowired
-	private ManterEmpresaService manterEmpresaService;
+	private EmpresaService manterEmpresaService;
 	
-	@RequestMapping(value = "/faça-parte", method = RequestMethod.POST)
+	@RequestMapping(value = "/faca-parte", method = RequestMethod.POST)
 	public ResponseEntity<Void> cadastrar(@Valid @RequestBody EmpresaDTO empresaDTO){
 		
 		Empresa empresa = manterEmpresaService.fromDTO(empresaDTO);
@@ -40,22 +42,24 @@ public class ManterEmpresaResource {
 		return ResponseEntity.created(uri).build();
 	}
 	
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Empresa> buscar(@PathVariable Integer id) {
+	@RequestMapping(value = "/minhaconta", method = RequestMethod.GET)
+	public ResponseEntity<Empresa> buscar() {
 		
-		Empresa empresa = manterEmpresaService.buscar(id);
+		Empresa empresa = manterEmpresaService.buscar();
 		
 		return ResponseEntity.ok().body(empresa);
 	}
 	
-	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Void> atualizar(@Valid @RequestBody EmpresaDTO empresaDTO, @PathVariable Integer id){
-		Empresa empresa = manterEmpresaService.fromDTO(empresaDTO);
-		empresa.setId(id);
+	@RequestMapping(value = "/update", method = RequestMethod.PUT)
+	public ResponseEntity<Empresa> atualizar(@Valid @RequestBody EmpresaDTO empresaDTO){
 		
+		System.out.println("Mandou atualizar");
+		
+		Empresa empresa = manterEmpresaService.fromDTO(empresaDTO);
+
 		empresa = manterEmpresaService.atualizar(empresa);
 		
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.ok().body(empresa);
 	}
 	
 	@RequestMapping(value = "/recuperar-senha", method = RequestMethod.POST)

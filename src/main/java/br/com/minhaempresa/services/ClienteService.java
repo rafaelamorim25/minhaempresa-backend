@@ -1,0 +1,132 @@
+package br.com.minhaempresa.services;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import br.com.minhaempresa.domain.Cliente;
+import br.com.minhaempresa.domain.Empresa;
+import br.com.minhaempresa.domain.Recebimento;
+import br.com.minhaempresa.domain.Venda;
+import br.com.minhaempresa.dto.ClienteDTO;
+import br.com.minhaempresa.dto.RecebimentoDTO;
+import br.com.minhaempresa.dto.VendaDTO;
+import br.com.minhaempresa.exceptions.DataIntegrityException;
+import br.com.minhaempresa.login.User;
+import br.com.minhaempresa.repositories.ClienteRepository;
+
+@Service
+public class ClienteService {
+
+	@Autowired
+	ClienteRepository repository;
+
+	public Cliente cadastrar(ClienteDTO clienteDTO) {
+
+		User user = UserService.authenticated();
+
+		Cliente cliente = Cliente.builder().cpf(clienteDTO.getCpf()).email(clienteDTO.getEmail())
+				.nome(clienteDTO.getNome()).telefone(clienteDTO.getTelefone()).empresa(new Empresa(user.getId()))
+				.build();
+
+		return repository.save(cliente);
+	}
+
+	public List<ClienteDTO> listar() {
+		User user = UserService.authenticated();
+
+		List<Cliente> clientes = repository.findByEmpresa(new Empresa(user.getId()));
+
+		List<ClienteDTO> list = new ArrayList<ClienteDTO>();
+
+		for (Cliente cliente : clientes) {
+
+			Set<RecebimentoDTO> recebimentos = new HashSet<>();
+
+			for (Recebimento recebimento : cliente.getRecebimentos()) {
+
+				recebimentos.add(RecebimentoDTO.builder().id(recebimento.getId()).valor(recebimento.getValor())
+						.data(recebimento.getData()).estornada(recebimento.getEstornada()).build());
+			}
+
+			list.add(ClienteDTO.builder().id(cliente.getId()).cpf(cliente.getCpf()).email(cliente.getEmail())
+					.nome(cliente.getNome()).telefone(cliente.getTelefone()).recebimentos(recebimentos)
+					.saldo(cliente.getSaldo()).build());
+		}
+
+		return list;
+	}
+
+	public ClienteDTO buscar(Integer id) {
+		User user = UserService.authenticated();
+
+		Cliente cliente = repository.findById(id).get();
+
+		Set<RecebimentoDTO> recebimentos = new HashSet<>();
+
+		for (Recebimento recebimento : cliente.getRecebimentos()) {
+
+			recebimentos.add(RecebimentoDTO.builder().id(recebimento.getId()).valor(recebimento.getValor())
+					.data(recebimento.getData()).estornada(recebimento.getEstornada()).build());
+		}
+
+		Set<VendaDTO> vendas = new HashSet<>();
+
+		for (Venda venda : cliente.getVendas()) {
+
+			vendas.add(VendaDTO.builder().id(venda.getId()).valor(venda.getValor()).data(venda.getData())
+					.estornada(venda.getEstornada()).formaPagamento(venda.getFormaPagamento())
+					.descricao(venda.getDescricao()).build());
+		}
+
+		return ClienteDTO.builder().id(cliente.getId()).cpf(cliente.getCpf()).email(cliente.getEmail())
+				.nome(cliente.getNome()).telefone(cliente.getTelefone()).recebimentos(recebimentos).vendas(vendas)
+				.saldo(cliente.getSaldo()).build();
+	}
+
+	public Cliente atualizar(ClienteDTO clienteDTO, Integer id) {
+
+		User user = UserService.authenticated();
+
+		Cliente c = repository.findById(id).get();
+
+		if (clienteDTO.getId() == id && c.getEmpresa().getId() == user.getId()) {
+
+			Cliente cliente = Cliente.builder().cpf(clienteDTO.getCpf()).email(clienteDTO.getEmail())
+					.nome(clienteDTO.getNome()).telefone(clienteDTO.getTelefone()).empresa(new Empresa(user.getId()))
+					.build();
+
+			return repository.save(cliente);
+
+		} else {
+
+			System.out.println("Não atualizou");
+
+		}
+
+		throw new DataIntegrityException("Impossível atualizar essa saida");
+	}
+
+	public void excluir(Integer id) {
+
+		User user = UserService.authenticated();
+
+		Optional<Cliente> s = repository.findById(id);
+
+		if (s.get().getEmpresa().getId() == user.getId()) {
+			repository.deleteById(id);
+
+			System.out.println("Excluiu");
+
+		} else {
+
+			System.out.println("Não excluiu");
+
+		}
+	}
+}

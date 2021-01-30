@@ -30,9 +30,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private JWTUtil jwtUtil;
 	
-	private static final String[] PUBLIC_MATCHERS = {"/minhaempresa/faça-parte", "/minhaempresa/recuperar-senha"};
+	private static final String[] PUBLIC_MATCHERS = {"/minhaempresa/faca-parte", "/minhaempresa/recuperar-senha"};
 	
-	private static final String[] PUBLIC_MATCHERS_POST = {"/minhaempresa/faça-parte", "/minhaempresa/recuperar-senha"};
+	private static final String[] PUBLIC_MATCHERS_POST = {"/minhaempresa/faca-parte", "/minhaempresa/recuperar-senha"};
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {

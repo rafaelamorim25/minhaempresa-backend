@@ -8,14 +8,13 @@ import org.springframework.stereotype.Service;
 
 import br.com.minhaempresa.domain.Empresa;
 import br.com.minhaempresa.dto.EmpresaDTO;
-import br.com.minhaempresa.exceptions.AuthorizationException;
 import br.com.minhaempresa.exceptions.DataIntegrityException;
 import br.com.minhaempresa.exceptions.ObjectNotFoundException;
 import br.com.minhaempresa.login.User;
 import br.com.minhaempresa.repositories.EmpresaRepository;
 
 @Service
-public class ManterEmpresaService {
+public class EmpresaService {
 
 	@Autowired
 	BCryptPasswordEncoder passwordEncoder;
@@ -38,29 +37,18 @@ public class ManterEmpresaService {
 					"Não é possível cadastrar a empresa, já existe uma conta com esse email ou cnpj", e.getCause());
 		}
 	}
-
-	public Empresa buscar(Integer id) {
+	
+	public Empresa buscar() {
 
 		User user = UserService.authenticated();
 
-		if (user == null || !id.equals(user.getId())) { // Garanta que apenas o usuário pode buscar seus dados
-			throw new AuthorizationException("Acesso negado");
-		}
-
-		return empresaRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(
-				"Empresa não encontrada, id " + id + ", Tipo: " + Empresa.class.getName()));
+		return empresaRepository.findById(user.getId()).orElseThrow(() -> new ObjectNotFoundException(
+				"Empresa não encontrada, id " + user.getId() + ", Tipo: " + Empresa.class.getName()));
 	}
 
 	public Empresa atualizar(Empresa empresa) {
 
-		User user = UserService.authenticated();
-
-		if (user == null || !empresa.getId().equals(user.getId())) { // Garanta que apenas o usuário pode buscar seus
-																		// dados
-			throw new AuthorizationException("Acesso negado");
-		}
-
-		Empresa novosDados = buscar(empresa.getId()); // Verifica se a empresa que será atualizada existe
+		Empresa novosDados = buscar(); // Verifica se a empresa que será atualizada existe
 
 		atualizarDados(novosDados, empresa);
 
@@ -88,14 +76,8 @@ public class ManterEmpresaService {
 	}
 
 	public void excluirConta(Integer id) {
-		
-		User user = UserService.authenticated();
 
-		if (user == null || !id.equals(user.getId())) { // Garanta que apenas o usuário pode excluir sua dados
-			throw new AuthorizationException("Acesso negado");
-		}
-
-		buscar(id);
+		buscar();
 
 		try {
 			empresaRepository.deleteById(id);
