@@ -63,7 +63,7 @@ public class ClienteService {
 	}
 
 	public ClienteDTO buscar(Integer id) {
-		User user = UserService.authenticated();
+		//User user = UserService.authenticated();
 
 		Cliente cliente = repository.findById(id).get();
 

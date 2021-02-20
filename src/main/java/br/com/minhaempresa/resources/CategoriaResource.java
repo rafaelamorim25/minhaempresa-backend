@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,7 @@ public class CategoriaResource {
 	@Autowired
 	private CategoriaService manterCategoriaService;
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<Void> cadastrar(@Valid @RequestBody CategoriaDTO categoriaDTO){
 		
@@ -39,7 +41,7 @@ public class CategoriaResource {
 		
 		return ResponseEntity.created(uri).build();
 	}
-	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<CategoriaDTO>> listar(){
 		
@@ -49,6 +51,7 @@ public class CategoriaResource {
 		return ResponseEntity.ok().body(list);
 	}
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<Categoria> atualizar(@Valid @RequestBody CategoriaDTO categoriaDTO, @PathVariable Integer id){
 
@@ -58,7 +61,7 @@ public class CategoriaResource {
 	}
 	
 
-	
+	@PreAuthorize("hasAnyRole('EMPRESA')")	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> excluir(@PathVariable Integer id){
 		

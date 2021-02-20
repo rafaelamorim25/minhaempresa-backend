@@ -4,6 +4,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,8 @@ public class RelatorioResource {
 	@Autowired
 	private RelatorioService relatorioService;
 	
-	@RequestMapping(method = RequestMethod.GET)
+	@PreAuthorize("hasAnyRole('EMPRESA')")
+	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<RelatorioDTO> exibir(@Valid @RequestBody PeriodoDTO periodo){
 		
 		RelatorioDTO relatorio = relatorioService.exibir(periodo);

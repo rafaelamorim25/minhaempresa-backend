@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,7 @@ public class VendaResource {
 	@Autowired
 	private VendaService vendaService;
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<Void> cadastrar(@Valid @RequestBody VendaDTO vendaDTO){
 		
@@ -38,6 +40,7 @@ public class VendaResource {
 		return ResponseEntity.created(uri).build();
 	}
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<VendaDTO>> listar(){
 		
@@ -47,8 +50,11 @@ public class VendaResource {
 		return ResponseEntity.ok().body(list);
 	}
 	
-	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
+	@PreAuthorize("hasAnyRole('EMPRESA')")
+	@RequestMapping(value = "/estornar/{id}", method = RequestMethod.POST)
 	public ResponseEntity<Void> estornar(@PathVariable Integer id){
+		
+		System.out.println("Mandou estornar");
 		
 		vendaService.estornar(id);
 		

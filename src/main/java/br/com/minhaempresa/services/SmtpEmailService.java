@@ -8,8 +8,6 @@ import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
-import br.com.minhaempresa.domain.Empresa;
-
 @Service
 public class SmtpEmailService {
 
@@ -21,14 +19,14 @@ public class SmtpEmailService {
 	
 	public SmtpEmailService() {}
 	
-	public void sendNewPasswordEmail(Empresa empresa, String newPass) {
-		SimpleMailMessage sm = prepareNewPasswordEmail(empresa, newPass);
+	public void sendNewPasswordEmail(String email, String newPass) {
+		SimpleMailMessage sm = prepareNewPasswordEmail(email, newPass);
 		sendEmail(sm);
 	}
 	
-	private SimpleMailMessage prepareNewPasswordEmail(Empresa empresa, String newPass) {
+	private SimpleMailMessage prepareNewPasswordEmail(String email, String newPass) {
 		SimpleMailMessage sm = new SimpleMailMessage();
-		sm.setTo(empresa.getEmail());
+		sm.setTo(email);
 		sm.setFrom(sender);
 		sm.setSubject("Solicitação de nova senha");
 		sm.setSentDate(new Date(System.currentTimeMillis()));

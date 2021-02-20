@@ -48,6 +48,10 @@ public class Cliente implements Serializable{
 	@Column(name = "cliente_email")
 	private String email;
 	
+	@Builder.Default
+	@Column(name = "cliente_visualizar_empresa")
+	private Boolean visualizar = true;
+	
 	@JsonManagedReference
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "empresa_id")
@@ -76,7 +80,7 @@ public class Cliente implements Serializable{
 		if(this.vendas != null && !this.vendas.isEmpty()) {
 			
 			for(Venda v: this.vendas) {
-				if(v.getFormaPagamento().getDescricao().equals("A prazo")) {
+				if(v.getFormaPagamento().getId() == 2) {
 					sumVendas = sumVendas + v.getValor();
 				}
 			}	
@@ -90,6 +94,15 @@ public class Cliente implements Serializable{
 		}
 		
 		return sumVendas - sumRecebimentos;
+	}
+	
+	public void trocarStatusVisualizacao() {
+	
+		if(this.visualizar) {
+			this.visualizar = false;
+		}else {
+			this.visualizar = true;
+		}
 	}
 
 }

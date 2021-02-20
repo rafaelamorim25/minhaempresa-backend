@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,10 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import br.com.minhaempresa.domain.Empresa;
-import br.com.minhaempresa.dto.ConfirmacaoSenhaDTO;
 import br.com.minhaempresa.dto.EmailDTO;
 import br.com.minhaempresa.dto.EmpresaDTO;
-import br.com.minhaempresa.dto.SenhaDTO;
 import br.com.minhaempresa.services.EmpresaService;
 
 @CrossOrigin(origins = "*")
@@ -42,6 +41,7 @@ public class EmpresaResource {
 		return ResponseEntity.created(uri).build();
 	}
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(value = "/minhaconta", method = RequestMethod.GET)
 	public ResponseEntity<Empresa> buscar() {
 		
@@ -50,6 +50,7 @@ public class EmpresaResource {
 		return ResponseEntity.ok().body(empresa);
 	}
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public ResponseEntity<Empresa> atualizar(@Valid @RequestBody EmpresaDTO empresaDTO){
 		
@@ -71,15 +72,7 @@ public class EmpresaResource {
 		return ResponseEntity.ok().build();
 	}
 	
-	@RequestMapping(value = "/verificar-senha", method = RequestMethod.POST)
-	public ResponseEntity<ConfirmacaoSenhaDTO> verificarSenha(@Valid @RequestBody SenhaDTO senhaDTO){
-		
-		ConfirmacaoSenhaDTO confirmacao = new ConfirmacaoSenhaDTO();
-		confirmacao.setSenhavalida(manterEmpresaService.senhaIsvalida(senhaDTO.getSenha()));
-		
-		return ResponseEntity.ok().body(confirmacao);
-	}
-	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> excluirConta(@PathVariable Integer id){
 		
@@ -87,6 +80,4 @@ public class EmpresaResource {
 		
 		return ResponseEntity.noContent().build();
 	}
-	
-	
 }

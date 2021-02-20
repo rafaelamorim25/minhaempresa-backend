@@ -14,5 +14,8 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Integer>{
 	
 	@Transactional(readOnly = true)
 	List<Categoria> findByEmpresa(Empresa empresa); 
+	
+	@Transactional
+	void deleteByEmpresa(Empresa empresa);
 
 }

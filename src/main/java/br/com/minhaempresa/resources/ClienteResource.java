@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,7 @@ public class ClienteResource {
 	@Autowired
 	private ClienteService clienteService;
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<Void> cadastrar(@Valid @RequestBody ClienteDTO clienteDTO){
 		
@@ -38,6 +40,7 @@ public class ClienteResource {
 		return ResponseEntity.created(uri).build();
 	}
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<ClienteDTO>> listar(){
 		
@@ -47,6 +50,7 @@ public class ClienteResource {
 		return ResponseEntity.ok().body(list);
 	}
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<ClienteDTO> buscar(@PathVariable Integer id){
 		
@@ -56,6 +60,7 @@ public class ClienteResource {
 		return ResponseEntity.ok().body(cliente);
 	}
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<Cliente> atualizar(@Valid @RequestBody ClienteDTO clienteDTO, @PathVariable Integer id){
 		
@@ -65,8 +70,7 @@ public class ClienteResource {
 		return ResponseEntity.ok().body(c);
 	}
 	
-
-	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> excluir(@PathVariable Integer id){
 		

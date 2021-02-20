@@ -41,7 +41,7 @@ public class Recebimento implements Serializable{
 	private Float valor;
 	
 	@Builder.Default
-	@Column(name = "venda_esta_estornada")
+	@Column(name = "recebimento_esta_estornada")
 	private Boolean estornada = false;
 	
 	@JsonManagedReference

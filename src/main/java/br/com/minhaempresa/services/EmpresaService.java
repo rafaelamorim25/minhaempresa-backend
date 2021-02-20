@@ -11,6 +11,7 @@ import br.com.minhaempresa.dto.EmpresaDTO;
 import br.com.minhaempresa.exceptions.DataIntegrityException;
 import br.com.minhaempresa.exceptions.ObjectNotFoundException;
 import br.com.minhaempresa.login.User;
+import br.com.minhaempresa.repositories.CategoriaRepository;
 import br.com.minhaempresa.repositories.EmpresaRepository;
 
 @Service
@@ -24,12 +25,14 @@ public class EmpresaService {
 	
 	@Autowired
 	SmtpEmailService emailService;
+	
+	@Autowired
+	CategoriaRepository categoriaRepository;
 
 	public Empresa cadastrar(Empresa empresa) {
 
-		empresa.setId(null); // Serve para garantir que é uma nova empresa, pois o metodo save serve para
-								// inserir e atualizar
-
+		empresa.setId(null); 
+							
 		try {
 			return empresaRepository.save(empresa);
 		} catch (DataIntegrityViolationException e) {
@@ -70,7 +73,7 @@ public class EmpresaService {
 		empresaRepository.save(empresa);
 		//atualizar o cliente com a nova senha
 		
-		emailService.sendNewPasswordEmail(empresa, senha);
+		emailService.sendNewPasswordEmail(empresa.getEmail(), senha);
 		//enviar a nova senha para o email da empresa
 
 	}
@@ -80,27 +83,15 @@ public class EmpresaService {
 		buscar();
 
 		try {
+			
+			categoriaRepository.deleteByEmpresa(new Empresa(id));
+			
 			empresaRepository.deleteById(id);
 		} catch (DataIntegrityViolationException e) {
 			throw new DataIntegrityException("Ainda não é possível excluir uma conta que contém outros registros",
 					e.getCause());
 		}
 
-	}
-	
-	public Boolean senhaIsvalida(String senha) {
-		
-		User user = UserService.authenticated();
-		
-		System.out.println("Senha guardada no banco: " + user.getPassword());
-		System.out.println("Senha da requisicao: " + passwordEncoder.encode(senha));
-
-		if(user.getPassword().equals(passwordEncoder.encode(senha))) {
-			
-			return true;
-		}
-		
-		return false;
 	}
 
 	/* Metodos auxiliares */

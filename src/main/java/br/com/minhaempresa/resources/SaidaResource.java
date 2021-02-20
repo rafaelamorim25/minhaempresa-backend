@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,7 @@ public class SaidaResource {
 	@Autowired
 	private SaidaService saidaService;
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<Void> cadastrar(@Valid @RequestBody SaidaDTO saidaDTO){
 		
@@ -38,6 +40,7 @@ public class SaidaResource {
 		return ResponseEntity.created(uri).build();
 	}
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<SaidaDTO>> listar(){
 		
@@ -47,18 +50,16 @@ public class SaidaResource {
 		return ResponseEntity.ok().body(list);
 	}
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<Saida> atualizar(@Valid @RequestBody SaidaDTO saidaDTO, @PathVariable Integer id){
-		
-		System.out.println("Mandou atualizar");
-		
-		//Categoria categoria = manterCategoriaService.fromDTO(categoriaDTO);
 
 		Saida s = saidaService.atualizar(saidaDTO, id);
 		
 		return ResponseEntity.ok().body(s);
 	}
 	
+	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> excluir(@PathVariable Integer id){
 		

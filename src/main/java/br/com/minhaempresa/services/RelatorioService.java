@@ -39,7 +39,7 @@ public class RelatorioService {
 					totalVendas += venda.getValor();
 
 					if (venda.getData().after(periodo.getDataInicial())
-							&& venda.getData().before(periodo.getDatedataFinal())) {
+							&& venda.getData().before(periodo.getDataFinal())) {
 						totalVendasPeriodo += venda.getValor();
 					}
 				}
@@ -52,7 +52,7 @@ public class RelatorioService {
 					totalRecebimentos += recebimento.getValor();
 
 					if (recebimento.getData().after(periodo.getDataInicial())
-							&& recebimento.getData().before(periodo.getDatedataFinal())) {
+							&& recebimento.getData().before(periodo.getDataFinal())) {
 						totalRecebimentosPeriodo += recebimento.getValor();
 					}
 				}

@@ -79,6 +79,8 @@ public class SaidaService{
 					.data(saidaDTO.getData())
 					.categoria(new Categoria(saidaDTO.getCategoria().getId()))
 					.empresa(new Empresa(user.getId()))
+					.id(id)
+					.valor(saidaDTO.getValor())
 					.build();
 
 			return repository.save(saida);

@@ -1,7 +1,6 @@
 package br.com.minhaempresa.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,11 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PeriodoDTO implements Serializable{
+public class ClienteAppDTO implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	private Date dataInicial;
-	private Date dataFinal;
-	
+	private Integer id;
+	private String nome;
+	private String cpf;
+	private String telefone;
+	private String email;
+	private String senha;
 
 }
