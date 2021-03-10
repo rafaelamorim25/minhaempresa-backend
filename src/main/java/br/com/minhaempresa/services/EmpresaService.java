@@ -101,29 +101,25 @@ public class EmpresaService {
 			throw new UsernameNotFoundException(email);
 		}
 		
-		String senha = gerarSenha();
-		
-		empresa.setSenha(passwordEncoder.encode(senha));
-		
+		String senha = gerarSenha();		
+		empresa.setSenha(passwordEncoder.encode(senha));	
 		empresaRepository.save(empresa);
-		//atualizar o cliente com a nova senha
-		
 		emailService.sendNewPasswordEmail(empresa.getEmail(), senha);
-		//enviar a nova senha para o email da empresa
 	}
 
 	public void excluirConta(Integer id) {
 
-		buscar();
+		Empresa empresa = buscar();
 
-		try {	
-			categoriaRepository.deleteByEmpresa(new Empresa(id));
-			empresaRepository.deleteById(id);
+		try {
+			if(empresa.getId().equals(id)) {
+				categoriaRepository.deleteByEmpresa(new Empresa(id));
+				empresaRepository.deleteById(id);
+			}
 		} catch (DataIntegrityViolationException e) {
 			throw new DataIntegrityException("Ainda não é possível excluir uma conta que contém outros registros",
 					e.getCause());
 		}
-
 	}
 
 	/* Metodos auxiliares */

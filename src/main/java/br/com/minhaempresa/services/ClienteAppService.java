@@ -43,19 +43,31 @@ public class ClienteAppService {
 
 	public ClienteApp cadastrar(ClienteApp clienteApp) {
 
-		clienteApp.setId(null); // Serve para garantir que é uma nova empresa, pois o metodo save serve para
-								// inserir e atualizar
+		clienteApp.setId(null);
 
 		try {
-			return clienteAppRepository.save(clienteApp);
+
+			ClienteApp cliente = clienteAppRepository.save(clienteApp);
+
+			return cliente;
+
 		} catch (DataIntegrityViolationException e) {
-			throw new DataIntegrityException(
-					"Não é possível cadastrar a empresa, já existe uma conta com esse email ou cnpj", e.getCause());
+
+			String mensagem = null;
+
+			if (e.getMostSpecificCause().getMessage().contains("cliente_app_cpf")) {
+				mensagem = "Não foi possível criar a conta, o CPF já está cadastrado na plataforma";
+			} else if (e.getMostSpecificCause().getMessage().contains("cliente_app_email")) {
+				mensagem = "Não foi possível criar a conta, o E-mail já está cadastrado na plataforma";
+			} else {
+				mensagem = "Não é possível cadastrar a conta, " + e.getMostSpecificCause().getMessage();
+			}
+
+			throw new DataIntegrityException(mensagem, e.getCause());
 		}
 	}
 
 	public ClienteApp buscar() {
-
 		User user = UserService.authenticated();
 
 		return clienteAppRepository.findById(user.getId()).orElseThrow(() -> new ObjectNotFoundException(
@@ -64,15 +76,30 @@ public class ClienteAppService {
 
 	public ClienteApp atualizar(ClienteApp clienteApp) {
 
-		ClienteApp novosDados = buscar(); // Verifica se a empresa que será atualizada existe
+		try {
+			
+			ClienteApp novosDados = buscar();
+			atualizarDados(novosDados, clienteApp);
+			
+			return clienteAppRepository.save(novosDados);
+			
+		} catch (DataIntegrityViolationException e) {
 
-		atualizarDados(novosDados, clienteApp);
+			String mensagem = null;
 
-		return clienteAppRepository.save(novosDados);
+			if (e.getMostSpecificCause().getMessage().contains("empresa_cnpj")) {
+				mensagem = "Não foi possível atualizar a conta, o CPF já está cadastrado na plataforma";
+			} else if (e.getMostSpecificCause().getMessage().contains("empresa_email")) {
+				mensagem = "Esse e-mail já é utilizado por outra conta, utilize outro";
+			} else {
+				mensagem = "Não é possível atualizar o cliente, " + e.getMostSpecificCause().getMessage();
+			}
+
+			throw new DataIntegrityException(mensagem, e.getCause());
+		}
 	}
 
 	public void recuperarSenha(String email) {
-
 		ClienteApp clienteApp = clienteAppRepository.findByEmail(email);
 
 		if (clienteApp == null) {
@@ -80,15 +107,9 @@ public class ClienteAppService {
 		}
 
 		String senha = gerarSenha();
-
 		clienteApp.setSenha(passwordEncoder.encode(senha));
-
 		clienteAppRepository.save(clienteApp);
-		// atualizar o cliente com a nova senha
-
 		emailService.sendNewPasswordEmail(clienteApp.getEmail(), senha);
-		// enviar a nova senha para o email da empresa
-
 	}
 
 	public void excluirConta(Integer id) {
@@ -96,24 +117,13 @@ public class ClienteAppService {
 		ClienteApp cliente = buscar();
 
 		try {
-			clienteAppRepository.deleteById(cliente.getId());
+			if(cliente.getId().equals(id)) {
+				clienteAppRepository.deleteById(cliente.getId());
+			}
 		} catch (DataIntegrityViolationException e) {
-			throw new DataIntegrityException("Ainda não é possível excluir uma conta que contém outros registros",
+			throw new DataIntegrityException("Não foi possível excluir a conta",
 					e.getCause());
 		}
-
-	}
-
-	public Boolean senhaIsvalida(String senha) {
-
-		User user = UserService.authenticated();
-
-		if (user.getPassword().equals(passwordEncoder.encode(senha))) {
-
-			return true;
-		}
-
-		return false;
 	}
 
 	public ClienteApp fromDTO(ClienteAppDTO clienteAppDTO) {
@@ -179,8 +189,7 @@ public class ClienteAppService {
 				compras.add(CompraDTO.builder().nomeFantasia(cliente.getEmpresa().getNomeFantasia())
 						.cnpj(cliente.getEmpresa().getCnpj()).telefone(cliente.getEmpresa().getTelefone())
 						.divida(cliente.getSaldo()).compras(vendas).pagamentos(recebimentos)
-						.visualizar(cliente.getVisualizar())
-						.clienteId(cliente.getId()).build());
+						.visualizar(cliente.getVisualizar()).clienteId(cliente.getId()).build());
 			}
 		}
 		return compras;
@@ -199,5 +208,4 @@ public class ClienteAppService {
 
 		}
 	}
-
 }
