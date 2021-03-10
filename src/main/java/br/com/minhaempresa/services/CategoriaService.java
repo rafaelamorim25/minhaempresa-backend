@@ -34,11 +34,7 @@ public class CategoriaService {
 	public List<CategoriaDTO> listar() {
 		User user = UserService.authenticated();
 
-		System.out.println("Mandou listar as categorias");
-
 		List<Categoria> categorias = repository.findByEmpresa(new Empresa(user.getId()));
-
-		System.out.println("terminou de listar as categorias");
 
 		List<CategoriaDTO> list = new ArrayList<CategoriaDTO>();
 
@@ -63,28 +59,18 @@ public class CategoriaService {
 
 			return repository.save(c);
 
-		} else {
-
-			System.out.println("Não atualizou");
-
 		}
 
 		throw new DataIntegrityException("Impossível atualizar essa categoria");
 	}
 
 	public void excluir(Integer id) {
-
 		User user = UserService.authenticated();
-
-		Optional<Categoria> c = repository.findById(id);
-
-		if (c.get().getEmpresa().getId() == user.getId()) {
-
-			try {
-				repository.deleteById(id);
-			} catch (Exception e) {
-				throw new DataIntegrityException("Impossível excluir uma categoria que contém saídas");
-			}
+		Categoria categoria = repository.findById(id).get();
+		
+		if (categoria.getEmpresa().getId() == user.getId() && categoria.getSaidas().isEmpty()) {
+			repository.deleteById(id);
 		}
+		throw new DataIntegrityException("Impossível excluir uma categoria que contém saídas");
 	}
 }

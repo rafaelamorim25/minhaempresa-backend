@@ -32,8 +32,6 @@ public class CategoriaResource {
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<Void> cadastrar(@Valid @RequestBody CategoriaDTO categoriaDTO){
 		
-		//Categoria categoria = manterCategoriaService.fromDTO(categoriaDTO);
-		
 		Categoria categoria = manterCategoriaService.cadastrar(categoriaDTO);
 		
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(categoria.getId())

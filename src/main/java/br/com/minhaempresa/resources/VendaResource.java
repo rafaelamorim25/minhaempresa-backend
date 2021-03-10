@@ -44,7 +44,6 @@ public class VendaResource {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<VendaDTO>> listar(){
 		
-		
 		List<VendaDTO> list = vendaService.listar();
 		
 		return ResponseEntity.ok().body(list);
@@ -53,8 +52,6 @@ public class VendaResource {
 	@PreAuthorize("hasAnyRole('EMPRESA')")
 	@RequestMapping(value = "/estornar/{id}", method = RequestMethod.POST)
 	public ResponseEntity<Void> estornar(@PathVariable Integer id){
-		
-		System.out.println("Mandou estornar");
 		
 		vendaService.estornar(id);
 		

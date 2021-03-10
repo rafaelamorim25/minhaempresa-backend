@@ -31,13 +31,13 @@ public class ClienteApp implements Serializable{
 	@Column(name = "clienteApp_nome")
 	private String nome;
 	
-	@Column(name = "clienteApp_cpf")
+	@Column(name = "clienteApp_cpf", unique = true)
 	private String cpf;
 	
 	@Column(name = "clienteApp_telefone")
 	private String telefone;
 	
-	@Column(name = "clienteApp_email")
+	@Column(name = "clienteApp_email", unique = true)
 	private String email;
 	
 	@JsonIgnore

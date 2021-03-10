@@ -93,10 +93,10 @@ public class ClienteAppService {
 
 	public void excluirConta(Integer id) {
 
-		buscar();
+		ClienteApp cliente = buscar();
 
 		try {
-			clienteAppRepository.deleteById(id);
+			clienteAppRepository.deleteById(cliente.getId());
 		} catch (DataIntegrityViolationException e) {
 			throw new DataIntegrityException("Ainda não é possível excluir uma conta que contém outros registros",
 					e.getCause());
@@ -181,12 +181,9 @@ public class ClienteAppService {
 						.divida(cliente.getSaldo()).compras(vendas).pagamentos(recebimentos)
 						.visualizar(cliente.getVisualizar())
 						.clienteId(cliente.getId()).build());
-
 			}
 		}
-
 		return compras;
-
 	}
 
 	public void visualizarEmpresa(Integer clienteId) {
@@ -198,7 +195,6 @@ public class ClienteAppService {
 		if (cliente.getCpf().equals(c.getCpf())) {
 
 			cliente.trocarStatusVisualizacao();
-
 			clienteRepository.save(cliente);
 
 		}

@@ -3,7 +3,6 @@ package br.com.minhaempresa.services;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +29,29 @@ public class ClienteService {
 
 		User user = UserService.authenticated();
 
-		Cliente cliente = Cliente.builder().cpf(clienteDTO.getCpf()).email(clienteDTO.getEmail())
-				.nome(clienteDTO.getNome()).telefone(clienteDTO.getTelefone()).empresa(new Empresa(user.getId()))
-				.build();
+		if (cpfValido(clienteDTO.getCpf(), user.getId())) {
 
-		return repository.save(cliente);
+			Cliente cliente = Cliente.builder().cpf(clienteDTO.getCpf()).email(clienteDTO.getEmail())
+					.nome(clienteDTO.getNome()).telefone(clienteDTO.getTelefone()).empresa(new Empresa(user.getId()))
+					.build();
+
+			return repository.save(cliente);
+		}
+
+		throw new DataIntegrityException("Não foi possível adicionar o cliente, erro: Esse CPF já está vinculado a outro cliente");
+	}
+
+	boolean cpfValido(String cpf, Integer empresaId) {
+
+		List<Cliente> clientes = repository.findByEmpresa(new Empresa(empresaId));
+
+		for (Cliente c : clientes) {
+			if (c.getCpf().equalsIgnoreCase(cpf)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public List<ClienteDTO> listar() {
@@ -63,30 +80,46 @@ public class ClienteService {
 	}
 
 	public ClienteDTO buscar(Integer id) {
-		//User user = UserService.authenticated();
+		
+		User user = UserService.authenticated();
+		
+		if(idValido(id, user.getId())) {
+			Cliente cliente = repository.findById(id).get();
 
-		Cliente cliente = repository.findById(id).get();
+			Set<RecebimentoDTO> recebimentos = new HashSet<>();
 
-		Set<RecebimentoDTO> recebimentos = new HashSet<>();
+			for (Recebimento recebimento : cliente.getRecebimentos()) {
 
-		for (Recebimento recebimento : cliente.getRecebimentos()) {
+				recebimentos.add(RecebimentoDTO.builder().id(recebimento.getId()).valor(recebimento.getValor())
+						.data(recebimento.getData()).estornada(recebimento.getEstornada()).build());
+			}
 
-			recebimentos.add(RecebimentoDTO.builder().id(recebimento.getId()).valor(recebimento.getValor())
-					.data(recebimento.getData()).estornada(recebimento.getEstornada()).build());
+			Set<VendaDTO> vendas = new HashSet<>();
+
+			for (Venda venda : cliente.getVendas()) {
+
+				vendas.add(VendaDTO.builder().id(venda.getId()).valor(venda.getValor()).data(venda.getData())
+						.estornada(venda.getEstornada()).formaPagamento(venda.getFormaPagamento())
+						.descricao(venda.getDescricao()).build());
+			}
+
+			return ClienteDTO.builder().id(cliente.getId()).cpf(cliente.getCpf()).email(cliente.getEmail())
+					.nome(cliente.getNome()).telefone(cliente.getTelefone()).recebimentos(recebimentos).vendas(vendas)
+					.saldo(cliente.getSaldo()).build();
+		}
+		throw new DataIntegrityException("Não foi possível buscar esse cliente");
+	}
+	
+	boolean idValido(Integer id, Integer empresaId) {
+		List<Cliente> clientes = repository.findByEmpresa(new Empresa(empresaId));
+
+		for (Cliente c : clientes) {
+			if (c.getId().equals(id)) {
+				return true;
+			}
 		}
 
-		Set<VendaDTO> vendas = new HashSet<>();
-
-		for (Venda venda : cliente.getVendas()) {
-
-			vendas.add(VendaDTO.builder().id(venda.getId()).valor(venda.getValor()).data(venda.getData())
-					.estornada(venda.getEstornada()).formaPagamento(venda.getFormaPagamento())
-					.descricao(venda.getDescricao()).build());
-		}
-
-		return ClienteDTO.builder().id(cliente.getId()).cpf(cliente.getCpf()).email(cliente.getEmail())
-				.nome(cliente.getNome()).telefone(cliente.getTelefone()).recebimentos(recebimentos).vendas(vendas)
-				.saldo(cliente.getSaldo()).build();
+		return false;
 	}
 
 	public Cliente atualizar(ClienteDTO clienteDTO, Integer id) {
@@ -103,30 +136,22 @@ public class ClienteService {
 
 			return repository.save(cliente);
 
-		} else {
-
-			System.out.println("Não atualizou");
-
 		}
 
-		throw new DataIntegrityException("Impossível atualizar essa saida");
+		throw new DataIntegrityException("Impossível atualizar esse cliente");
 	}
 
 	public void excluir(Integer id) {
 
 		User user = UserService.authenticated();
 
-		Optional<Cliente> s = repository.findById(id);
+		Cliente cliente = repository.findById(id).get();
 
-		if (s.get().getEmpresa().getId() == user.getId()) {
+		if (cliente.getEmpresa().getId() == user.getId() && cliente.getSaldo().equals(0F)) {
+
 			repository.deleteById(id);
-
-			System.out.println("Excluiu");
-
-		} else {
-
-			System.out.println("Não excluiu");
-
 		}
+		
+		throw new DataIntegrityException("Não foi possível excluir o cliente, pois ele possiu dívida");
 	}
 }

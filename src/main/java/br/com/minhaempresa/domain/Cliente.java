@@ -80,17 +80,19 @@ public class Cliente implements Serializable{
 		if(this.vendas != null && !this.vendas.isEmpty()) {
 			
 			for(Venda v: this.vendas) {
-				if(v.getFormaPagamento().getId() == 2) {
+				if(v.getFormaPagamento().getId() == 2 && !v.getEstornada()) {
 					sumVendas = sumVendas + v.getValor();
 				}
 			}	
 		}
 		
 		if(this.recebimentos != null && !this.recebimentos.isEmpty()) {
-			sumRecebimentos = this.recebimentos.stream()
-					.map(r -> r.getValor())
-					.reduce((a, b) -> a + b)
-					.get();
+			
+			for (Recebimento r: this.recebimentos) {
+				if(!r.getEstornada()) {
+					sumRecebimentos = sumRecebimentos + r.getValor();
+				}
+			}
 		}
 		
 		return sumVendas - sumRecebimentos;

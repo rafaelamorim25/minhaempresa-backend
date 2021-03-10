@@ -54,8 +54,6 @@ public class EmpresaResource {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public ResponseEntity<Empresa> atualizar(@Valid @RequestBody EmpresaDTO empresaDTO){
 		
-		System.out.println("Mandou atualizar");
-		
 		Empresa empresa = manterEmpresaService.fromDTO(empresaDTO);
 
 		empresa = manterEmpresaService.atualizar(empresa);
@@ -67,7 +65,6 @@ public class EmpresaResource {
 	public ResponseEntity<Void> recuperarSenha(@Valid @RequestBody EmailDTO emailDTO){
 		
 		manterEmpresaService.recuperarSenha(emailDTO.getEmail());
-		
 		
 		return ResponseEntity.ok().build();
 	}

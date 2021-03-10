@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import br.com.minhaempresa.domain.Categoria;
 import br.com.minhaempresa.domain.Empresa;
 import br.com.minhaempresa.dto.EmpresaDTO;
 import br.com.minhaempresa.exceptions.DataIntegrityException;
@@ -33,11 +34,28 @@ public class EmpresaService {
 
 		empresa.setId(null); 
 							
-		try {
-			return empresaRepository.save(empresa);
+		try {		
+			
+			Empresa novaEmpresa = empresaRepository.save(empresa);
+			
+			categoriaRepository.save(new Categoria("Custo", "Gastos relacionados a produção", novaEmpresa));
+			categoriaRepository.save(new Categoria("Despesa", "Gastos relacionados ao cotidiano da organização", novaEmpresa));
+			
+			return novaEmpresa;
+			
 		} catch (DataIntegrityViolationException e) {
-			throw new DataIntegrityException(
-					"Não é possível cadastrar a empresa, já existe uma conta com esse email ou cnpj", e.getCause());
+			
+			String mensagem = null;
+			
+			if(e.getMostSpecificCause().getMessage().contains("empresa_cnpj")) {
+				mensagem = "Não foi possível criar a conta, o CNPJ já está cadastrado na plataforma";
+			} else if(e.getMostSpecificCause().getMessage().contains("empresa_email")) {
+				mensagem = "Não foi possível criar a conta, o E-mail já está cadastrado na plataforma";
+			} else {
+				mensagem = "Não é possível cadastrar a empresa, " + e.getMostSpecificCause().getMessage();
+			}
+			
+			throw new DataIntegrityException(mensagem , e.getCause());
 		}
 	}
 	
@@ -50,12 +68,29 @@ public class EmpresaService {
 	}
 
 	public Empresa atualizar(Empresa empresa) {
+		
+		try {		
+			
+			Empresa novosDados = buscar(); 
+			
+			atualizarDados(novosDados, empresa);
 
-		Empresa novosDados = buscar(); // Verifica se a empresa que será atualizada existe
-
-		atualizarDados(novosDados, empresa);
-
-		return empresaRepository.save(novosDados);
+			return empresaRepository.save(novosDados);
+			
+		} catch (DataIntegrityViolationException e) {
+			
+			String mensagem = null;
+			
+			if(e.getMostSpecificCause().getMessage().contains("empresa_cnpj")) {
+				mensagem = "Não foi possível atualizar a conta, o CNPJ já está cadastrado na plataforma";
+			} else if(e.getMostSpecificCause().getMessage().contains("empresa_email")) {
+				mensagem = "Esse e-mail já é utilizado por outra conta, utilize outro";
+			} else {
+				mensagem = "Não é possível atualizar a empresa, " + e.getMostSpecificCause().getMessage();
+			}
+			
+			throw new DataIntegrityException(mensagem , e.getCause());
+		}
 	}
 
 	public void recuperarSenha(String email) {
@@ -75,17 +110,14 @@ public class EmpresaService {
 		
 		emailService.sendNewPasswordEmail(empresa.getEmail(), senha);
 		//enviar a nova senha para o email da empresa
-
 	}
 
 	public void excluirConta(Integer id) {
 
 		buscar();
 
-		try {
-			
+		try {	
 			categoriaRepository.deleteByEmpresa(new Empresa(id));
-			
 			empresaRepository.deleteById(id);
 		} catch (DataIntegrityViolationException e) {
 			throw new DataIntegrityException("Ainda não é possível excluir uma conta que contém outros registros",
@@ -125,6 +157,4 @@ public class EmpresaService {
         }
         return senha.toString();     
 	}
-
-	/* fim dos metodos auxiliares */
 }

@@ -23,17 +23,10 @@ public class SaidaService{
 	SaidaRepository repository;
 	
 	public Saida  cadastrar(SaidaDTO saidaDTO) {
-
-		System.out.println("Entrou no service");
 		
 		User user = UserService.authenticated();
 		
-		System.out.println("Pegou o usuario");
-		
-		
 		Saida saida = Saida.builder().valor(saidaDTO.getValor()).descricao(saidaDTO.getDescricao()).data(saidaDTO.getData()).categoria(new Categoria(saidaDTO.getCategoria().getId())).empresa(new Empresa(user.getId())).build();
-		System.out.println("Criou o objeto");
-		
 		
 		return repository.save(saida);	
 	}
@@ -84,11 +77,6 @@ public class SaidaService{
 					.build();
 
 			return repository.save(saida);
-			
-		}else {
-			
-			System.out.println("Não atualizou");
-			
 		}
 
 		throw new DataIntegrityException("Impossível atualizar essa saida");
@@ -101,16 +89,9 @@ public class SaidaService{
 		Optional<Saida> s = repository.findById(id);
 		
 		if(s.get().getEmpresa().getId() == user.getId()) {
-			repository.deleteById(id);
-			
-			System.out.println("Excluiu");
-			
+			repository.deleteById(id);		
 		}else {
-			
-			System.out.println("Não excluiu");
-			
+			throw new DataIntegrityException("Impossível excluir essa saida");
 		}
-
 	}
-
 }

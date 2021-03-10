@@ -35,13 +35,11 @@ public class SmtpEmailService {
 	}
 	
 	private void sendEmail(SimpleMailMessage msg) {
-		System.out.println("Enviando email");
 		
 		if(mailSender == null) {
 			System.out.println("Mail sender está nulo");
 		}
 		
 		mailSender.send(msg);
-		System.out.println("Email enviado");;
 	}
 }
