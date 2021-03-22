@@ -31,7 +31,7 @@ public class RecebimentoService {
 			User user = UserService.authenticated();
 			Cliente cliente = clienteRepository.findById(recebimentoDTO.getCliente().getId()).get();
 
-			if (cliente.getEmpresa().getId().equals(user.getId()) && cliente.getSaldo() <= recebimentoDTO.getValor()) {
+			if (cliente.getEmpresa().getId().equals(user.getId()) && cliente.getSaldo() >= recebimentoDTO.getValor()) {
 				Recebimento recebimento = Recebimento.builder().valor(recebimentoDTO.getValor())
 						.data(recebimentoDTO.getData()).cliente(new Cliente(recebimentoDTO.getCliente().getId()))
 						.build();
