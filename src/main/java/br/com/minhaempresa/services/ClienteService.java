@@ -130,7 +130,7 @@ public class ClienteService {
 
 		if (clienteDTO.getId() == id && c.getEmpresa().getId() == user.getId()) {
 
-			Cliente cliente = Cliente.builder().cpf(clienteDTO.getCpf()).email(clienteDTO.getEmail())
+			Cliente cliente = Cliente.builder().id(clienteDTO.getId()).cpf(clienteDTO.getCpf()).email(clienteDTO.getEmail())
 					.nome(clienteDTO.getNome()).telefone(clienteDTO.getTelefone()).empresa(new Empresa(user.getId()))
 					.build();
 
